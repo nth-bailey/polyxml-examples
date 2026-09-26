@@ -30,7 +30,7 @@
   - [2. Python (Dataclasses & Native Engine)](#2-python-dataclasses--native-engine)
   - [3. Go (Dual Struct Tags)](#3-go-dual-struct-tags)
   - [4. Modern C++20 (Header-Only Value Types)](#4-modern-c20-header-only-value-types)
-  - [5. Java 21+ (Records & Sealed Interfaces)](#5-java-21-records--sealed-interfaces)
+  - [5. Java 22+ (Records & Sealed Interfaces)](#5-java-22-records--sealed-interfaces)
   - [6. TypeScript 5+ (Typed Interfaces & Zod)](#6-typescript-5-typed-interfaces--zod)
   - [7. C# 12 / .NET 8 (Primary Constructor Records)](#7-c-12--net-8-primary-constructor-records)
 - [CLI Streaming & Schema-Directed Transcoder](#-cli-streaming--schema-directed-transcoder)
@@ -73,7 +73,7 @@ flowchart LR
         BRIDGE --> CPP["⚡ C++20<br/>9.2 μs"]
         BRIDGE --> GO["🐹 Go 1.22<br/>81.7 μs"]
         BRIDGE --> PY["🐍 Python<br/>268 μs"]
-        BRIDGE --> JAVA["☕ Java 21<br/>8.6 ms"]
+        BRIDGE --> JAVA["☕ Java 22<br/>8.6 ms"]
         BRIDGE --> TS["🌐 TypeScript<br/>74 μs"]
         BRIDGE --> CS["🔷 C# 12<br/>17.0 ms"]
     end
@@ -204,7 +204,7 @@ Generate strongly-typed domain models for any specific language on demand with f
 | **🐍 Python** | `polyxml generate schemas/uci/uci_entity_core.xsd -l python -b dataclass --codecs -o generated/python` | `-b dataclass` (or `pydantic`), `--codecs` (synthesizes `.to_xml()`, `.to_json()`) |
 | **🐹 Go** | `polyxml generate schemas/uci/uci_entity_core.xsd -l go -p uci -o generated/go` | `-p uci` (sets Go package name, emits dual `xml` and `json` tags) |
 | **⚡ C++20** | `polyxml generate schemas/uci/uci_entity_core.xsd -l cpp -p "polyxml::generated" -o generated/cpp` | `-p` (C++ namespace, emits header-only value types & concepts) |
-| **☕ Java 21+** | `polyxml generate schemas/uci/uci_entity_core.xsd -l java -p "com.enterprise.uci" -o generated/java` | `-p` (Java package declaration, emits immutable `record`s) |
+| **☕ Java 22+** | `polyxml generate schemas/uci/uci_entity_core.xsd -l java -p "com.enterprise.uci" -o generated/java` | `-p` (Java package declaration, emits immutable `record`s) |
 | **🌐 TypeScript** | `polyxml generate schemas/uci/uci_entity_core.xsd -l ts --zod -o generated/typescript` | `--zod` (synthesizes runtime Zod schemas alongside TS interfaces) |
 | **🔷 C# 12** | `polyxml generate schemas/uci/uci_entity_core.xsd -l csharp -p "Enterprise.Uci" -o generated/csharp` | `-p` (C# namespace, emits primary constructor records with dual attributes) |
 
@@ -254,13 +254,15 @@ Every implementation ingests the identical sample autonomous asset telemetry fil
 | **🐹 Go** | Dual Struct Tags (`xml` & `json`) | **121.6 μs** | **113.1 μs** | **~120 μs** *(AOT native)* | [`examples/go/`](examples/go/) |
 | **🌐 TypeScript** | Interfaces + Zod Contracts | **4.6 ms** | **293.9 μs** | **~2.1 μs** *(V8 TurboFan)* | [`examples/typescript/`](examples/typescript/) |
 | **🐍 Python** | `@dataclass` + PolyXML C-Engine | **1.9 ms** | **268.9 μs** | **~1.9 ms** *(Interpreted)* | [`examples/python/`](examples/python/) |
-| **☕ Java 21+** | Records & Sealed Interfaces | **8.6 ms** *(cold)* | **14.5 ms** | **~8.3 μs** *(HotSpot C2 JIT)* | [`examples/java/`](examples/java/) |
+| **☕ Java 22+** | Records & Sealed Interfaces | **8.6 ms** *(cold)* | **14.5 ms** | **~8.3 μs** *(HotSpot C2 JIT)* | [`examples/java/`](examples/java/) |
 | **🔷 C# 12** | Primary Constructor Records (.NET 8) | **47.4 ms** *(cold)* | **29.2 ms** | **~28.5 μs** *(RyuJIT)* | [`examples/csharp/`](examples/csharp/) |
+
+The Java figures above were measured on JDK 21 before PolyXML raised its supported minimum to Java 22; rerun the benchmark on Java 22+ for current comparisons.
 
 > [!NOTE]
 > **Understanding Cold Single-Shot vs. Steady-State (JIT Warmed) Latency:**
 > - **AOT Compiled Languages (Rust, C++, Go)**: Compiled Ahead-of-Time directly to native machine code. They have **zero classloading or JIT warm-up overhead**; execution immediately runs at full production speed on the very first instruction.
-> - **Managed JIT Runtimes (Java 21+, C# 12 / .NET 8)**: Single-shot cold measurements include one-time JVM dynamic class loading, bytecode verification, and .NET `XmlSerializer` code generation (~8–47 ms). In continuous production environments (e.g., long-running microservices, avionics telemetry processors, Kafka/streaming consumers) after HotSpot C2 / RyuJIT compilation, Java executes in **~8.3 μs** and C# in **~28.5 μs**.
+> - **Managed JIT Runtimes (Java 22+, C# 12 / .NET 8)**: Single-shot cold measurements include one-time JVM dynamic class loading, bytecode verification, and .NET `XmlSerializer` code generation (~8–47 ms). In continuous production environments (e.g., long-running microservices, avionics telemetry processors, Kafka/streaming consumers) after HotSpot C2 / RyuJIT compilation, Java executes in **~8.3 μs** and C# in **~28.5 μs**.
 
 ---
 
@@ -395,7 +397,7 @@ cmake -B examples/cpp/build examples/cpp && cmake --build examples/cpp/build && 
 
 ---
 
-### 5. Java 21+ (Records & Sealed Interfaces)
+### 5. Java 22+ (Records & Sealed Interfaces)
 
 ```java
 public record KinematicsType(
@@ -548,7 +550,7 @@ polyxml-defense-examples/
 │   ├── python/                    # Python dataclass / PolyXML bridge
 │   ├── go/                        # Go microservice gateway
 │   ├── cpp/                       # Modern C++20 flight computer adapter
-│   ├── java/                      # Java 21+ records adapter
+│   ├── java/                      # Java 22+ records adapter
 │   ├── typescript/                # Web / COP tactical map adapter
 │   └── csharp/                    # .NET 8 tactical planner app
 └── scripts/

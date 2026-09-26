@@ -210,7 +210,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         System.out.println("================================================================================");
-        System.out.println("🛸 PolyXML: Anduril Lattice SDK ↔ USAF UCI C2 Bridge (Java 21+ Records)");
+        System.out.println("🛸 PolyXML: Anduril Lattice SDK ↔ USAF UCI C2 Bridge (Java 22+ Records)");
         System.out.println("   Autonomous Flying Drone Airplane Telemetry (UNCLASSIFIED)");
         System.out.println("================================================================================");
 
@@ -267,6 +267,6 @@ public class Main {
             throw new AssertionError("Missing UNCLASSIFIED classification in XML output");
         }
 
-        System.out.println("\n✅ Java 21+ Lattice ↔ UCI Bridge executed successfully!");
+        System.out.println("\n✅ Java 22+ Lattice ↔ UCI Bridge executed successfully!");
     }
 }

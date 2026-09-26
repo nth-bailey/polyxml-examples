@@ -48,7 +48,7 @@ cmake -B examples/cpp/build examples/cpp -DCMAKE_BUILD_TYPE=Release
 cmake --build examples/cpp/build
 ./examples/cpp/build/lattice_uci_bridge
 
-echo -e "\n[5/8] ☕ Testing Java 21+ (Records & Sealed Interfaces)..."
+echo -e "\n[5/8] ☕ Testing Java 22+ (Records & Sealed Interfaces)..."
 mvn -f examples/java/pom.xml compile exec:java -q
 
 echo -e "\n[6/8] 🌐 Testing TypeScript 5+ (Typed Interfaces + Zod Validation)..."
