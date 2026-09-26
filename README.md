@@ -32,6 +32,7 @@
 - [Polyglot Benchmark & Implementations](#-polyglot-benchmark--implementations)
   - [1. Rust (Zero-Copy Streaming)](#1-rust-zero-copy-streaming)
   - [2. Python (Dataclasses & Native Engine)](#2-python-dataclasses--native-engine)
+  - [2b. Python AOT (Ahead-of-Time PyO3 Native Extension)](#2b-python-aot-ahead-of-time-pyo3-native-extension)
   - [3. Go (Dual Struct Tags)](#3-go-dual-struct-tags)
   - [4. Modern C++20 (Header-Only Value Types)](#4-modern-c20-header-only-value-types)
   - [5. Java 22+ (Records & Sealed Interfaces)](#5-java-22-records--sealed-interfaces)
@@ -132,7 +133,8 @@ flowchart TD
 
 | Language | Dual-Format Mechanism | Serialization | Deserialization |
 | :--- | :--- | :--- | :--- |
-| **Python** | Inherent runtime codecs on `@dataclass` | `entity.to_xml()`<br/>`entity.to_json()` | `EntityMt.from_xml(b)`<br/>`EntityMt.from_json(b)` |
+| **Python (Dataclass)** | Inherent runtime codecs on `@dataclass` | `entity.to_xml()`<br/>`entity.to_json()` | `EntityMt.from_xml(b)`<br/>`EntityMt.from_json(b)` |
+| **Python (AOT Native)** | Ahead-of-Time compiled PyO3 native extension (`uci_aot`) | `entity.to_xml()`<br/>`entity.to_json()` | `EntityMt.from_xml(s)`<br/>`EntityMt.from_json(s)` |
 | **Rust** | Zero-copy `Cow<'a, str>` + Serde annotations | `entity.to_xml_string()`<br/>`entity.to_json_string()` | `EntityMt::decode_xml(...)`<br/>`EntityMt::from_json_str(s)` |
 | **Go** | Dual struct tags (`xml:"..." json:"..."`) | `xml.Marshal(entity)`<br/>`json.Marshal(entity)` | `xml.Unmarshal(b, &entity)`<br/>`json.Unmarshal(b, &entity)` |
 | **C# 12** | Dual attributes (`[XmlElement]`, `[JsonPropertyName]`) | `xmlSerializer.Serialize(...)`<br/>`JsonSerializer.Serialize(...)` | `xmlSerializer.Deserialize(...)`<br/>`JsonSerializer.Deserialize<T>(...)` |
@@ -159,12 +161,19 @@ target = "rust"
 output = "rust"
 zero_copy = true
 codecs = true
+features = ["rkyv"]
 
 [[generate]]
 target = "python"
 output = "python"
 backend = "dataclass"
 codecs = true
+
+[[generate]]
+target = "python"
+output = "python_aot"
+backend = "aot"
+package = "uci_aot"
 
 [[generate]]
 target = "go"
@@ -183,15 +192,16 @@ package = "com.enterprise.uci"
 [[generate]]
 target = "typescript"
 output = "typescript"
-zod = true
+backend = "zod"
 
 [[generate]]
 target = "csharp"
 output = "csharp"
 namespace = "Enterprise.Uci"
+backend = "source-gen"
 ```
 
-Compile all 7 target languages in a single command:
+Compile all target languages and extensions in a single command:
 ```bash
 polyxml build
 ```
@@ -205,7 +215,8 @@ Generate strongly-typed domain models for any specific language on demand with f
 | Target Language | PolyXML CLI Generation Command | Key Flags Explained |
 | :--- | :--- | :--- |
 | **🦀 Rust** | `polyxml generate schemas/uci/uci_entity_core.xsd -l rust --zero-copy --codecs -o generated/rust` | `--zero-copy` (borrows `Cow<'a, str>`), `--codecs` (emits streaming XML/JSON codecs) |
-| **🐍 Python** | `polyxml generate schemas/uci/uci_entity_core.xsd -l python -b dataclass --codecs -o generated/python` | `-b dataclass` (or `pydantic`), `--codecs` (synthesizes `.to_xml()`, `.to_json()`) |
+| **🐍 Python (Dataclass)** | `polyxml generate schemas/uci/uci_entity_core.xsd -l python -b dataclass --codecs -o generated/python` | `-b dataclass` (or `pydantic`), `--codecs` (synthesizes `.to_xml()`, `.to_json()`) |
+| **🐍⚡ Python (AOT Native)** | `polyxml generate schemas/uci/uci_entity_core.xsd -l python -b aot -p uci_aot -o generated/python_aot` | `-b aot` (synthesizes standalone PyO3 native extension crate with ABI3 `.so`/`.pyd`) |
 | **🐹 Go** | `polyxml generate schemas/uci/uci_entity_core.xsd -l go -p uci -o generated/go` | `-p uci` (sets Go package name, emits dual `xml` and `json` tags) |
 | **⚡ C++20** | `polyxml generate schemas/uci/uci_entity_core.xsd -l cpp -p "polyxml::generated" -o generated/cpp` | `-p` (C++ namespace, emits header-only value types & concepts) |
 | **☕ Java 22+** | `polyxml generate schemas/uci/uci_entity_core.xsd -l java -p "com.enterprise.uci" -o generated/java` | `-p` (Java package declaration, emits immutable `record`s) |
@@ -339,6 +350,54 @@ polyxml generate schemas/uci/uci_entity_core.xsd --lang python --backend datacla
 **Run Example:**
 ```bash
 python3 examples/python/bridge.py
+```
+
+---
+
+### 2b. Python AOT (Ahead-of-Time PyO3 Native Extension)
+
+For high-throughput telemetry ingestion pipelines (e.g. edge drone communication nodes, tactical C2 brokers), PolyXML compiles XML schemas directly into **compiled Rust PyO3 native extensions** (`.so` / `.pyd`) with ABI3 compatibility:
+
+```python
+import uci_aot
+
+# Construct native model with unboxed contiguous memory layout
+uci_entity = uci_aot.EntityMt(
+    security_information=uci_aot.SecurityInformationType(
+        classification=uci_aot.ClassificationEnum.Unclassified,
+        owner_producer="USA",
+    ),
+    message_header=uci_aot.HeaderType(
+        message_id="MSG-E4A71D80",
+        timestamp="2026-09-20T11:00:00Z",
+        originator_id="LATTICE_MESH_NODE_DELTA",
+    ),
+    object_state=uci_aot.ObjectStateEnum.Active,
+    message_data=mdt,
+)
+
+# Sub-microsecond native XML & JSON codecs
+xml_str = uci_entity.to_xml()
+restored_xml = uci_aot.EntityMt.from_xml(xml_str)
+
+json_str = uci_entity.to_json()
+restored_json = uci_aot.EntityMt.from_json(json_str)
+```
+
+**Generate & Build Extension:**
+```bash
+# 1. Synthesize standalone PyO3 crate
+polyxml generate schemas/uci/uci_entity_core.xsd -l python -b aot -p uci_aot -o generated/python_aot
+
+# 2. Compile into virtualenv via maturin
+cd generated/python_aot
+maturin develop --release
+```
+
+**Run Example & Benchmark:**
+```bash
+python3 examples/python/bridge_aot.py
+# Sustained throughput: 172,500+ ops/sec | 166+ MB/s | 5.8 μs per packet
 ```
 
 ---

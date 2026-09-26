@@ -55,13 +55,23 @@ struct LatticeFlightPlan {
 fn translate_lattice_to_uci<'a>(lattice: &'a LatticeEntity) -> EntityMt<'a> {
     EntityMt {
         security_information: SecurityInformationType {
-            classification: ClassificationEnum::Unclassified,
-            owner_producer: None,
+            classification: match lattice.classification.as_deref() {
+                Some("CONFIDENTIAL") => ClassificationEnum::Confidential,
+                Some("SECRET") => ClassificationEnum::Secret,
+                Some("TOP_SECRET") => ClassificationEnum::TopSecret,
+                _ => ClassificationEnum::Unclassified,
+            },
+            owner_producer: Some(Cow::Borrowed("USA")),
         },
         message_header: HeaderType {
-            message_id: Cow::Borrowed(&lattice.id),
+            message_id: Cow::Owned(format!(
+                "MSG-{}",
+                &lattice.id[..lattice.id.len().min(8)].to_uppercase()
+            )),
             timestamp: Cow::Borrowed(&lattice.timestamp),
-            originator_id: Cow::Borrowed("LATTICE-EDGE-01"),
+            originator_id: Cow::Borrowed(
+                lattice.source_system.as_deref().unwrap_or("LATTICE_NODE"),
+            ),
         },
         object_state: Some(ObjectStateEnum::Active),
         message_data: EntityMdt {

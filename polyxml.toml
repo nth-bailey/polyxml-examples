@@ -18,6 +18,12 @@ backend = "dataclass"
 codecs = true
 
 [[generate]]
+target = "python"
+output = "python_aot"
+backend = "aot"
+package = "uci_aot"
+
+[[generate]]
 target = "go"
 output = "go"
 package = "uci"
@@ -41,5 +47,4 @@ target = "csharp"
 output = "csharp"
 namespace = "Enterprise.Uci"
 backend = "source-gen"
-
 

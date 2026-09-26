@@ -1,0 +1,14 @@
+[package]
+name = "uci_aot"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "uci_aot"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.29", features = ["abi3-py312", "extension-module"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+quick-xml = { version = "0.42", features = ["serialize"] }

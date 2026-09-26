@@ -1,8 +1,11 @@
 # Build outputs and dependencies
 target/
+**/target/
 build/
+**/build/
 bin/
 obj/
+generated/**/Cargo.lock
 node_modules/
 .venv/
 __pycache__/

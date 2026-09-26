@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "uci_aot"
+version = "0.1.0"
+description = "PolyXML Python AOT native PyO3 extension module"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.maturin]
+module-name = "uci_aot"
+features = ["pyo3/extension-module"]

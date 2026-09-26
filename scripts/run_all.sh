@@ -33,12 +33,24 @@ echo -e "\n[0/8] 📦 Regenerating typed models across all 7 targets via polyxml
 if command -v cargo &>/dev/null && [ -f examples/rust/Cargo.toml ]; then
     cargo fmt --manifest-path examples/rust/Cargo.toml || true
 fi
+if [ -f "${ROOT_DIR}/../PolyXML/.venv/bin/maturin" ] || command -v maturin &>/dev/null; then
+    MATURIN_BIN="maturin"
+    if [ -d "${ROOT_DIR}/../PolyXML/.venv" ]; then
+        export VIRTUAL_ENV="${ROOT_DIR}/../PolyXML/.venv"
+        MATURIN_BIN="${ROOT_DIR}/../PolyXML/.venv/bin/maturin"
+    fi
+    (cd generated/python_aot && "${MATURIN_BIN}" develop --release -q) || true
+fi
 
 echo -e "\n[1/8] 🦀 Testing Rust (Zero-Copy Streaming)..."
 cargo run --manifest-path examples/rust/Cargo.toml
 
 echo -e "\n[2/8] 🐍 Testing Python (Dataclasses + PolyXML Engine)..."
 "${PYTHON_BIN}" examples/python/bridge.py
+if [ -f "examples/python/bridge_aot.py" ]; then
+    echo -e "\n[2b/8] ⚡ Testing Python AOT (PyO3 Native Extension)..."
+    "${PYTHON_BIN}" examples/python/bridge_aot.py
+fi
 
 echo -e "\n[3/8] 🐹 Testing Go (Dual XML/JSON Struct Tags)..."
 go run ./examples/go
@@ -49,12 +61,7 @@ cmake --build examples/cpp/build
 ./examples/cpp/build/lattice_uci_bridge
 
 echo -e "\n[5/8] ☕ Testing Java 22+ (Records & Sealed Interfaces)..."
-if javac --version 2>&1 | grep -qE " (2[2-9]|[3-9][0-9])\."; then
-    mvn -f examples/java/pom.xml compile exec:java -q
-else
-    echo "⚠️  Local JDK is $(javac --version 2>&1 | head -n1). Java 22+ required for Panama FFI; skipping local run."
-fi
-
+mvn -f examples/java/pom.xml compile exec:java -q
 
 echo -e "\n[6/8] 🌐 Testing TypeScript 5+ (Typed Interfaces + Zod Validation)..."
 if [ ! -d "node_modules" ]; then

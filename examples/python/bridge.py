@@ -136,6 +136,18 @@ def main() -> None:
     print(f"    Roundtrip Transcode Latency: {transcode_us:.2f} μs (pure Rust C-extension)")
     print(f"    Output Sample: {stream_json.decode('utf-8')[:140].strip()}...")
 
+    # 5. Optional Ahead-of-Time (AOT) Native PyO3 Extension Showcase
+    try:
+        import uci_aot
+        start_aot = time.perf_counter()
+        aot_entity = uci_aot.EntityMt.from_xml(xml_str)
+        aot_us = (time.perf_counter() - start_aot) * 1_000_000
+        print(f"\n[5] ⚡ Ahead-of-Time (AOT) PyO3 Native Extension (`uci_aot`):")
+        print(f"    Native AOT Deserialization: {aot_us:.2f} μs")
+        print(f"    Restored UUID: {aot_entity.message_data.entity_id.uuid} | Airspeed: {aot_entity.message_data.kinematics.airspeed} m/s")
+    except ImportError:
+        pass
+
     print("\n✅ Python Lattice ↔ UCI Bridge executed successfully with full dual-format parity!")
 
 
