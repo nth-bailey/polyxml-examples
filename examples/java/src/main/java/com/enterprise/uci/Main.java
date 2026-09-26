@@ -110,7 +110,20 @@ public class Main {
             Optional.ofNullable(lattice.fuelRemainingPercent)
         );
 
+        SecurityInformationType secInfo = new SecurityInformationType(
+            ClassificationEnum.UNCLASSIFIED,
+            Optional.of("USA")
+        );
+
+        HeaderType header = new HeaderType(
+            "MSG-" + (lattice.id != null && lattice.id.length() >= 8 ? lattice.id.substring(0, 8).toUpperCase() : "00000000"),
+            ts,
+            lattice.sourceSystem != null ? lattice.sourceSystem : "LATTICE_MESH_NODE_DELTA"
+        );
+
         return new EntityMt(
+            secInfo,
+            header,
             Optional.of(ObjectStateEnum.ACTIVE),
             mdt
         );
