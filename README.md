@@ -2,8 +2,8 @@
 
 # 🛸 PolyXML Polyglot Examples: Anduril Lattice SDK ↔ USAF UCI C2 Bridge
 
-[![CI](https://github.com/nth-bailey/polyxml-defense-examples/actions/workflows/ci.yml/badge.svg)](https://github.com/nth-bailey/polyxml-defense-examples/actions/workflows/ci.yml)
-[![PolyXML](https://img.shields.io/badge/PolyXML-v0.19.2-blueviolet.svg?style=flat-square)](https://github.com/nth-bailey/PolyXML)
+[![CI](https://github.com/polyxml/polyxml-defense-examples/actions/workflows/ci.yml/badge.svg)](https://github.com/polyxml/polyxml-defense-examples/actions/workflows/ci.yml)
+[![PolyXML](https://img.shields.io/badge/PolyXML-v0.19.2-blueviolet.svg?style=flat-square)](https://github.com/polyxml/PolyXML)
 [![Standard: USAF UCI v2.5](https://img.shields.io/badge/Standard-USAF%20UCI%20v2.5-003366.svg?style=flat-square)](https://github.com/open-arsenal/uci)
 [![Source: Anduril Lattice SDK](https://img.shields.io/badge/Source-Anduril%20Lattice%20SDK-black.svg?style=flat-square)](https://buf.build/anduril/lattice-sdk)
 [![Data-Binding: Dual XML & JSON](https://img.shields.io/badge/Data--Binding-XML%20%E2%86%94%20JSON%20Parity-orange.svg?style=flat-square)](#-first-class-dual-format-xml--json-interoperability)
@@ -12,7 +12,7 @@
 
 **Next-generation defense autonomy meets battle-tested mission command & control.**
 
-*A production-grade, polyglot integration showcase bridging autonomous edge telemetry from the **Anduril Lattice SDK** (Protobuf/JSON) with the **USAF Universal Command and Control Interface (UCI v2.5)** XML standard across **all 7 programming languages** supported by [PolyXML](https://github.com/nth-bailey/PolyXML).*
+*A production-grade, polyglot integration showcase bridging autonomous edge telemetry from the **Anduril Lattice SDK** (Protobuf/JSON) with the **USAF Universal Command and Control Interface (UCI v2.5)** XML standard across **all 7 programming languages** supported by [PolyXML](https://github.com/polyxml/PolyXML).*
 
 </div>
 
@@ -577,7 +577,7 @@ To build and run all 7 language examples, ensure the relevant runtimes are insta
 Run the unified test runner to compile schemas and verify all 7 languages sequentially:
 
 ```bash
-git clone https://github.com/nth-bailey/polyxml-defense-examples.git
+git clone https://github.com/polyxml/polyxml-defense-examples.git
 cd polyxml-defense-examples
 ./scripts/run_all.sh
 ```

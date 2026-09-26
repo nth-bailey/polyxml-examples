@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nth-bailey/polyxml-defense-examples.git"
+    "url": "git+https://github.com/polyxml/polyxml-defense-examples.git"
   },
   "bugs": {
-    "url": "https://github.com/nth-bailey/polyxml-defense-examples/issues"
+    "url": "https://github.com/polyxml/polyxml-defense-examples/issues"
   },
-  "homepage": "https://github.com/nth-bailey/polyxml-defense-examples#readme",
+  "homepage": "https://github.com/polyxml/polyxml-defense-examples#readme",
   "dependencies": {
     "zod": "^3.23.8"
   }
