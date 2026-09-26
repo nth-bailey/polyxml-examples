@@ -54,6 +54,15 @@ struct LatticeFlightPlan {
 
 fn translate_lattice_to_uci<'a>(lattice: &'a LatticeEntity) -> EntityMt<'a> {
     EntityMt {
+        security_information: SecurityInformationType {
+            classification: ClassificationEnum::Unclassified,
+            owner_producer: None,
+        },
+        message_header: HeaderType {
+            message_id: Cow::Borrowed(&lattice.id),
+            timestamp: Cow::Borrowed(&lattice.timestamp),
+            originator_id: Cow::Borrowed("LATTICE-EDGE-01"),
+        },
         object_state: Some(ObjectStateEnum::Active),
         message_data: EntityMdt {
             entity_id: EntityIdType {

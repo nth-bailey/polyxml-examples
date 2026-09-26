@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
+import { createPolyXml } from "@polyxml/wasm";
 import {
   ClassificationEnum,
   EntityStatusEnum,
@@ -187,7 +189,7 @@ function serializeToXml(entity: EntityMt): string {
     .join("\n");
 }
 
-function main() {
+async function main() {
   console.log("================================================================================");
   console.log("🛸 PolyXML: Anduril Lattice SDK ↔ USAF UCI C2 Bridge (TypeScript 5+ & Zod)");
   console.log("   Autonomous Flying Drone Airplane Telemetry (UNCLASSIFIED)");
@@ -246,7 +248,28 @@ function main() {
     throw new Error("Missing UNCLASSIFIED classification in XML output");
   }
 
-  console.log("\n✅ TypeScript Lattice ↔ UCI Bridge executed successfully with Zod runtime validation!");
+  // 4. WebAssembly Engine (@polyxml/wasm): Edge C2 Wasm Transcoding & Streaming
+  const t_start_wasm = performance.now();
+  const polyxmlWasm = await createPolyXml();
+  const wasmParsed = polyxmlWasm.xmlToJson(xmlOutput);
+  const wasmXml = polyxmlWasm.jsonToXml(wasmParsed);
+  const t_end_wasm = performance.now();
+  const wasmUs = (t_end_wasm - t_start_wasm) * 1000.0;
+
+  console.log(`\n[4] WebAssembly Engine (@polyxml/wasm) (latency: ${wasmUs.toFixed(2)} μs):`);
+  console.log(`    Wasm Converted JSON Root: ${Object.keys(wasmParsed as object).join(", ")}`);
+  console.log(`    Wasm XML Roundtrip Size:  ${wasmXml.length} bytes`);
+
+  // Streaming record parsing demonstration: simulate streaming incoming drone swarm telemetry records
+  const sampleStreamXml = `<EntityMT xmlns:uci="https://www.vdl.afrl.af.mil/programs/oam"><Entity><MessageData><EntityID><Callsign>${lattice.callsign}</Callsign><UUID>${lattice.id}</UUID></EntityID><FlightMode>AUTONOMOUS_SWARM</FlightMode></MessageData></Entity></EntityMT>`;
+  const webStream = Readable.toWeb(Readable.from([sampleStreamXml]));
+  let streamedRecordsCount = 0;
+  for await (const record of polyxmlWasm.parseStream(webStream)) {
+    streamedRecordsCount++;
+    console.log(`    Wasm Stream Record #${streamedRecordsCount}: ${Object.keys(record as object).join(", ")}`);
+  }
+
+  console.log("\n✅ TypeScript & WebAssembly Lattice ↔ UCI Bridge executed successfully with Zod runtime validation!");
 }
 
 main();

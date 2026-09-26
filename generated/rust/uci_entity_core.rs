@@ -6,6 +6,7 @@
     unused_imports,
     unused_mut,
     unused_variables,
+    unused_assignments,
     non_camel_case_types,
     non_snake_case
 )]
@@ -49,7 +50,25 @@ fn read_element_text<'a>(reader: &mut Reader<&'a [u8]>, tag_name: &str) -> Resul
                     },
                     Cow::Owned(s) => Cow::Owned(quick_xml::escape::unescape(&s)?.into_owned()),
                 };
-                text = raw;
+                if text.is_empty() {
+                    text = raw;
+                } else {
+                    text.to_mut().push_str(&raw);
+                }
+            }
+            Event::CData(c) => {
+                text.to_mut().push_str(c.as_ref());
+            }
+            Event::GeneralRef(r) => {
+                if r.is_char_ref() {
+                    if let Some(ch) = r.resolve_char_ref()? {
+                        text.to_mut().push(ch);
+                    }
+                } else if let Some(val) = quick_xml::escape::resolve_xml_entity(r.as_ref()) {
+                    text.to_mut().push_str(val);
+                } else {
+                    text.to_mut().push_str(r.as_ref());
+                }
             }
             Event::End(e) if e.local_name().as_ref() == tag_name => break,
             Event::Eof => break,
@@ -761,6 +780,10 @@ impl<'a> MessageType<'a> {
 )]
 #[cfg_attr(feature = "rkyv", rkyv(check_bytes))]
 pub struct EntityMt<'a> {
+    #[serde(rename = "SecurityInformation")]
+    pub security_information: SecurityInformationType<'a>,
+    #[serde(rename = "MessageHeader")]
+    pub message_header: HeaderType<'a>,
     #[serde(
         rename = "ObjectState",
         default,
@@ -793,12 +816,22 @@ impl<'a> EntityMt<'a> {
     }
 
     pub fn decode_xml(reader: &mut Reader<&'a [u8]>, start: &BytesStart<'_>) -> Result<Self> {
+        let mut var_security_information = None;
+        let mut var_message_header = None;
         let mut var_object_state = None;
         let mut var_message_data = None;
 
         loop {
             match reader.read_event()? {
                 Event::Start(e) => match e.local_name().as_ref() {
+                    "SecurityInformation" => {
+                        let val = SecurityInformationType::decode_xml(reader, &e)?;
+                        var_security_information = Some(val);
+                    }
+                    "MessageHeader" => {
+                        let val = HeaderType::decode_xml(reader, &e)?;
+                        var_message_header = Some(val);
+                    }
                     "ObjectState" => {
                         let text = read_element_text(reader, "ObjectState")?;
                         let s = text.trim();
@@ -820,6 +853,14 @@ impl<'a> EntityMt<'a> {
                     }
                 },
                 Event::Empty(e) => match e.local_name().as_ref() {
+                    "SecurityInformation" => {
+                        let val = SecurityInformationType::decode_xml_empty(&e)?;
+                        var_security_information = Some(val);
+                    }
+                    "MessageHeader" => {
+                        let val = HeaderType::decode_xml_empty(&e)?;
+                        var_message_header = Some(val);
+                    }
                     "ObjectState" => {}
                     "MessageData" => {
                         let val = EntityMdt::decode_xml_empty(&e)?;
@@ -834,6 +875,12 @@ impl<'a> EntityMt<'a> {
         }
 
         Ok(Self {
+            security_information: var_security_information.ok_or_else(|| {
+                PolyXmlError::SchemaError("Missing required field 'SecurityInformation'".into())
+            })?,
+            message_header: var_message_header.ok_or_else(|| {
+                PolyXmlError::SchemaError("Missing required field 'MessageHeader'".into())
+            })?,
             object_state: var_object_state,
             message_data: var_message_data.ok_or_else(|| {
                 PolyXmlError::SchemaError("Missing required field 'MessageData'".into())
@@ -842,10 +889,14 @@ impl<'a> EntityMt<'a> {
     }
 
     pub fn decode_xml_empty(start: &BytesStart<'_>) -> Result<Self> {
+        let mut var_security_information = None;
+        let mut var_message_header = None;
         let mut var_object_state = None;
         let mut var_message_data = None;
 
         Ok(Self {
+            security_information: var_security_information.unwrap_or_default(),
+            message_header: var_message_header.unwrap_or_default(),
             object_state: var_object_state,
             message_data: var_message_data.unwrap_or_default(),
         })
@@ -887,6 +938,10 @@ impl<'a> EntityMt<'a> {
         let tag = tag_name.unwrap_or("EntityMT");
         let mut start = BytesStart::new(tag);
         writer.write_event(Event::Start(start))?;
+        self.security_information
+            .encode_xml(writer, Some("SecurityInformation"))?;
+        self.message_header
+            .encode_xml(writer, Some("MessageHeader"))?;
         if let Some(ref val) = self.object_state {
             writer.write_event(Event::Start(BytesStart::new("ObjectState")))?;
             writer.write_event(Event::Text(BytesText::new(val.as_str())))?;

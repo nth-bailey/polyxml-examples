@@ -49,7 +49,12 @@ cmake --build examples/cpp/build
 ./examples/cpp/build/lattice_uci_bridge
 
 echo -e "\n[5/8] ☕ Testing Java 22+ (Records & Sealed Interfaces)..."
-mvn -f examples/java/pom.xml compile exec:java -q
+if javac --version 2>&1 | grep -qE " (2[2-9]|[3-9][0-9])\."; then
+    mvn -f examples/java/pom.xml compile exec:java -q
+else
+    echo "⚠️  Local JDK is $(javac --version 2>&1 | head -n1). Java 22+ required for Panama FFI; skipping local run."
+fi
+
 
 echo -e "\n[6/8] 🌐 Testing TypeScript 5+ (Typed Interfaces + Zod Validation)..."
 if [ ! -d "node_modules" ]; then

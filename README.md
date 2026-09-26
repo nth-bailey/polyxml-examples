@@ -1,18 +1,22 @@
 <div align="center">
 
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/polyxml/PolyXML/main/docs/assets/brand/logo_polyxml_banner.png" alt="PolyXML" width="800">
+</h1>
+
 # 🛸 PolyXML Polyglot Examples: Anduril Lattice SDK ↔ USAF UCI C2 Bridge
 
 [![CI](https://github.com/polyxml/polyxml-defense-examples/actions/workflows/ci.yml/badge.svg)](https://github.com/polyxml/polyxml-defense-examples/actions/workflows/ci.yml)
-[![PolyXML](https://img.shields.io/badge/PolyXML-v0.19.2-blueviolet.svg?style=flat-square)](https://github.com/polyxml/PolyXML)
+[![PolyXML](https://img.shields.io/badge/PolyXML-v0.23.3-blueviolet.svg?style=flat-square)](https://github.com/polyxml/PolyXML)
 [![Standard: USAF UCI v2.5](https://img.shields.io/badge/Standard-USAF%20UCI%20v2.5-003366.svg?style=flat-square)](https://github.com/open-arsenal/uci)
 [![Source: Anduril Lattice SDK](https://img.shields.io/badge/Source-Anduril%20Lattice%20SDK-black.svg?style=flat-square)](https://buf.build/anduril/lattice-sdk)
 [![Data-Binding: Dual XML & JSON](https://img.shields.io/badge/Data--Binding-XML%20%E2%86%94%20JSON%20Parity-orange.svg?style=flat-square)](#-first-class-dual-format-xml--json-interoperability)
-[![Languages: 7](https://img.shields.io/badge/Languages-Rust%20%7C%20Python%20%7C%20Go%20%7C%20C%2B%2B%20%7C%20Java%20%7C%20TypeScript%20%7C%20C%23-blue.svg?style=flat-square)](#-polyglot-benchmark--implementations)
+[![Languages: 7](https://img.shields.io/badge/Languages-Rust%20%7C%20Python%20%7C%20Go%20%7C%20C%2B%2B%20%7C%20Java%20%7C%20TypeScript%2FWasm%20%7C%20C%23-blue.svg?style=flat-square)](#-polyglot-benchmark--implementations)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
 **Next-generation defense autonomy meets battle-tested mission command & control.**
 
-*A production-grade, polyglot integration showcase bridging autonomous edge telemetry from the **Anduril Lattice SDK** (Protobuf/JSON) with the **USAF Universal Command and Control Interface (UCI v2.5)** XML standard across **all 7 programming languages** supported by [PolyXML](https://github.com/polyxml/PolyXML).*
+*A production-grade, polyglot integration showcase bridging autonomous edge telemetry from the **Anduril Lattice SDK** (Protobuf/JSON) with the **USAF Universal Command and Control Interface (UCI v2.5)** XML standard across **all 7 programming languages & WebAssembly (`@polyxml/wasm`)** supported by [PolyXML](https://github.com/polyxml/PolyXML).*
 
 </div>
 
@@ -205,7 +209,7 @@ Generate strongly-typed domain models for any specific language on demand with f
 | **🐹 Go** | `polyxml generate schemas/uci/uci_entity_core.xsd -l go -p uci -o generated/go` | `-p uci` (sets Go package name, emits dual `xml` and `json` tags) |
 | **⚡ C++20** | `polyxml generate schemas/uci/uci_entity_core.xsd -l cpp -p "polyxml::generated" -o generated/cpp` | `-p` (C++ namespace, emits header-only value types & concepts) |
 | **☕ Java 22+** | `polyxml generate schemas/uci/uci_entity_core.xsd -l java -p "com.enterprise.uci" -o generated/java` | `-p` (Java package declaration, emits immutable `record`s) |
-| **🌐 TypeScript** | `polyxml generate schemas/uci/uci_entity_core.xsd -l ts --zod -o generated/typescript` | `--zod` (synthesizes runtime Zod schemas alongside TS interfaces) |
+| **🌐 TypeScript** | `polyxml generate schemas/uci/uci_entity_core.xsd -l ts --backend zod -o generated/typescript` | `--backend zod` (synthesizes runtime Zod schemas alongside TS interfaces) |
 | **🔷 C# 12** | `polyxml generate schemas/uci/uci_entity_core.xsd -l csharp -p "Enterprise.Uci" -o generated/csharp` | `-p` (C# namespace, emits primary constructor records with dual attributes) |
 
 Run the automated generation script across all 7 targets:
@@ -252,7 +256,7 @@ Every implementation ingests the identical sample autonomous asset telemetry fil
 | **⚡ C++20** | Modern C++ Value Types | **56.4 μs** | **9.2 μs** | **~56 μs** *(AOT native)* | [`examples/cpp/`](examples/cpp/) |
 | **🦀 Rust** | Zero-Copy Slices (`Cow<'a, str>`) | **36.3 μs** | **37.4 μs** | **~36 μs** *(AOT native)* | [`examples/rust/`](examples/rust/) |
 | **🐹 Go** | Dual Struct Tags (`xml` & `json`) | **121.6 μs** | **113.1 μs** | **~120 μs** *(AOT native)* | [`examples/go/`](examples/go/) |
-| **🌐 TypeScript** | Interfaces + Zod Contracts | **4.6 ms** | **293.9 μs** | **~2.1 μs** *(V8 TurboFan)* | [`examples/typescript/`](examples/typescript/) |
+| **🌐 TypeScript & Wasm** | Interfaces + Zod Contracts + `@polyxml/wasm` | **4.6 ms** | **293.9 μs** | **~2.1 μs** *(V8 TurboFan)* | [`examples/typescript/`](examples/typescript/) |
 | **🐍 Python** | `@dataclass` + PolyXML C-Engine | **1.9 ms** | **268.9 μs** | **~1.9 ms** *(Interpreted)* | [`examples/python/`](examples/python/) |
 | **☕ Java 22+** | Records & Sealed Interfaces | **8.6 ms** *(cold)* | **14.5 ms** | **~8.3 μs** *(HotSpot C2 JIT)* | [`examples/java/`](examples/java/) |
 | **🔷 C# 12** | Primary Constructor Records (.NET 8) | **47.4 ms** *(cold)* | **29.2 ms** | **~28.5 μs** *(RyuJIT)* | [`examples/csharp/`](examples/csharp/) |

@@ -9,7 +9,7 @@ target = "rust"
 output = "rust"
 zero_copy = true
 codecs = true
-rkyv = true
+features = ["rkyv"]
 
 [[generate]]
 target = "python"
@@ -26,7 +26,6 @@ package = "uci"
 target = "cpp"
 output = "cpp"
 
-
 [[generate]]
 target = "java"
 output = "java"
@@ -35,11 +34,12 @@ package = "com.enterprise.uci"
 [[generate]]
 target = "typescript"
 output = "typescript"
-zod = true
+backend = "zod"
 
 [[generate]]
 target = "csharp"
 output = "csharp"
 namespace = "Enterprise.Uci"
-source_gen = true
+backend = "source-gen"
+
 

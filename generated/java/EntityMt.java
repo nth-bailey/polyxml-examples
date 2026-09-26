@@ -11,6 +11,8 @@ import java.math.*;
 import java.util.regex.Pattern;
 
 public record EntityMt(
+    SecurityInformationType securityInformation,
+    HeaderType messageHeader,
     java.util.Optional<ObjectStateEnum> objectState,
     EntityMdt messageData
 ) {

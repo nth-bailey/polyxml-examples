@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/polyxml/polyxml-defense-examples#readme",
   "dependencies": {
+    "@polyxml/wasm": "^0.23.3",
     "zod": "^3.23.8"
   }
 }

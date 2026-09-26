@@ -124,6 +124,7 @@ class MessageType:
     class Meta:
         name = "MessageType"
         namespace = "https://www.vdl.afrl.af.mil/programs/oam"
+        abstract = True
 
     security_information: SecurityInformationType = field(metadata={"type": "Element", "name": "SecurityInformation", "json_name": "SecurityInformation", "namespace": "https://www.vdl.afrl.af.mil/programs/oam"})
     message_header: HeaderType = field(metadata={"type": "Element", "name": "MessageHeader", "json_name": "MessageHeader", "namespace": "https://www.vdl.afrl.af.mil/programs/oam"})

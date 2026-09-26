@@ -14,7 +14,7 @@ jobs:
       - name: Checkout PolyXML Core Compiler
         uses: actions/checkout@v4
         with:
-          repository: nth-bailey/PolyXML
+          repository: polyxml/PolyXML
           path: PolyXML
 
       - name: Checkout PolyXML Examples
